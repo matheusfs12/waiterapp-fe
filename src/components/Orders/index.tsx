@@ -1,54 +1,68 @@
+import { useEffect, useState } from 'react';
+
 import { Container } from './styles';
 import { Order } from '../../types/Order';
 import { OrdersBoard } from '../OrdersBoard';
-
-const orders: Order[] = [
-    {
-        _id: '6372e48cbcd195b0d3d0f7f3',
-        table: '123',
-        status: 'WAITING',
-        products: [
-            {
-                product: {
-                    name: 'Pizza quatro queijos',
-                    imagePath: '1673490032707-quatro-queijos.png',
-                    price: 40,
-                },
-                quantity: 3,
-                _id: '6372e48cbcd195b0d3d0f7f4'
-            },
-            {
-                product: {
-                    name: 'Coca cola',
-                    imagePath: '1673491001981-coca-cola.png',
-                    price: 7,
-                },
-                quantity: 2,
-                _id: '6372e48cbcd195b0d3d0f7f5'
-            }
-        ],
-    }
-];
+import { api } from '../../utils/api';
 
 export function Orders() {
+    const [orders, setOrders] = useState<Order[]>([]);
+
+    useEffect(() => {
+        api.get('/orders').then(response => {
+            setOrders(response.data);
+        }).catch(error => {
+            console.log(error);
+        }).finally(() => {
+            console.log('Finalizado');
+        });
+    }, []);
+
+    const waitingOrders = orders.filter(order => order.status === 'WAITING');
+    const inProductionOrders = orders.filter(order => order.status === 'IN_PRODUCTION');
+    const readyOrders = orders.filter(order => order.status === 'DONE');
+
+    function handleCancelOrder(orderId: string) {
+        setOrders(prev => prev.filter(order => order._id !== orderId));
+    }
+
+    function handleChangeOrderStatus(orderId: string, status: Order['status']) {
+        setOrders(prev => prev.map(order => {
+            if (order._id === orderId) {
+                return {
+                    ...order,
+                    status,
+                };
+            }
+
+            return order;
+        }));
+    }
+
     return (
         <Container>
             <OrdersBoard
                 icon='🕑'
                 title='Fila de espera'
-                orders={orders}
+                orders={waitingOrders}
+                onCancelOrder={handleCancelOrder}
+                onChangeOrderStatus={handleChangeOrderStatus}
             />
 
             <OrdersBoard
                 icon='👨🏻‍🍳'
                 title='Em preparo'
-                orders={[]}
+                orders={inProductionOrders}
+                onCancelOrder={handleCancelOrder}
+                onChangeOrderStatus={handleChangeOrderStatus}
             />
 
             <OrdersBoard
                 icon='✅'
                 title='Pronto'
-                orders={[]}
+                orders={readyOrders}
+                onCancelOrder={handleCancelOrder}
+                onChangeOrderStatus={handleChangeOrderStatus}
             />
         </Container>
     );

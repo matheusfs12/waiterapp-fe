@@ -123,6 +123,11 @@ export const Actions = styled.div`
     gap: 0.4rem;
     margin-top: 3.2rem;
 
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     .primary {
         background: #333333;
         border: 0;

@@ -9,7 +9,6 @@ export const Board = styled.div`
     flex: 1;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 2.4rem;
 
     > header {
