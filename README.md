@@ -1,4 +1,4 @@
-# WaiterApp Mobile
+# WaiterApp frontend
 
 Developed in the course JStack From Mateus Silva
 
