@@ -4,20 +4,30 @@ import { Container } from './styles';
 import { Order } from '../../types/Order';
 import { OrdersBoard } from '../OrdersBoard';
 import { api } from '../../utils/api';
+import socketIo from 'socket.io-client';
 
 export function Orders() {
     const [orders, setOrders] = useState<Order[]>([]);
 
     useEffect(() => {
+        console.count('fetching orders...');
+
         api.get('/orders').then(response => {
             setOrders(response.data);
         }).catch(error => {
             console.log(error);
-        }).finally(() => {
-            console.log('Finalizado');
+        });
+
+        const socket = socketIo(import.meta.env.VITE_SOCKET_HOST, {
+            transports: ['websocket'],
+        });
+
+        socket.on('orders@new', (order) => {
+            setOrders(prev => prev.concat(order));
         });
     }, []);
 
+    // memoize
     const waitingOrders = orders.filter(order => order.status === 'WAITING');
     const inProductionOrders = orders.filter(order => order.status === 'IN_PRODUCTION');
     const readyOrders = orders.filter(order => order.status === 'DONE');
